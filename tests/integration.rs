@@ -122,7 +122,10 @@ async fn send_json(
     let bytes = to_bytes(response.into_body(), usize::MAX)
         .await
         .expect("body bytes");
-    let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json body");
+    let raw = String::from_utf8_lossy(&bytes).to_string();
+    let value: serde_json::Value = serde_json::from_slice(&bytes).unwrap_or_else(|err| {
+        panic!("json body parse failed: status={status}, raw={raw}, err={err}");
+    });
     (status, value)
 }
 

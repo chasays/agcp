@@ -50,10 +50,10 @@ impl AppState {
 pub fn build_router(state: Arc<AppState>) -> Router {
     Router::new()
         .route("/v1/actions/submit", post(submit_action))
-        .route("/v1/actions/{action_id}/approve", post(approve_action))
+        .route("/v1/actions/:action_id/approve", post(approve_action))
         .route("/v1/governor/kill", post(kill))
         .route("/v1/governor/degrade", post(degrade))
-        .route("/v1/audit/{action_id}", get(audit))
+        .route("/v1/audit/:action_id", get(audit))
         .route("/v1/health", get(health))
         .with_state(state)
 }
