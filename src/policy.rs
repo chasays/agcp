@@ -120,6 +120,10 @@ impl PolicyEngine {
             return deny("MISSING_EVIDENCE");
         }
 
+        if let Some(reason_code) = blocked_by_constraints(tool_policy, envelope) {
+            return deny(reason_code);
+        }
+
         let claim_calls = envelope.budget_claim.tool_calls.max(1);
         let claim_writes = if tool_policy.write {
             envelope.budget_claim.write_actions.max(1)
@@ -208,10 +212,49 @@ fn should_escalate(tool_policy: &ToolPolicy, envelope: &ActionEnvelope) -> bool 
     }
 }
 
-fn deny(reason: &str) -> PolicyEvaluation {
+fn blocked_by_constraints(tool_policy: &ToolPolicy, envelope: &ActionEnvelope) -> Option<String> {
+    if tool_policy.name != "shell.exec" {
+        return None;
+    }
+
+    let blocked_pattern = tool_policy.constraints.get("blocked_pattern")?;
+    let command = envelope
+        .proposed_action
+        .args
+        .get("command")
+        .and_then(|value| value.as_str())?;
+
+    let normalized_blocked = normalize_shell_text(blocked_pattern);
+    let normalized_command = normalize_shell_text(command);
+    if normalized_blocked.is_empty() {
+        return None;
+    }
+
+    if normalized_command.contains(&normalized_blocked) {
+        return Some(
+            tool_policy
+                .constraints
+                .get("deny_reason")
+                .cloned()
+                .unwrap_or_else(|| "DANGEROUS_COMMAND_BLOCKED".to_string()),
+        );
+    }
+
+    None
+}
+
+fn normalize_shell_text(input: &str) -> String {
+    input
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+        .to_ascii_lowercase()
+}
+
+fn deny(reason: impl Into<String>) -> PolicyEvaluation {
     PolicyEvaluation {
         decision: DecisionType::Deny,
-        reason_code: reason.to_string(),
+        reason_code: reason.into(),
         is_write: false,
         token_ttl_sec: 0,
         approval_ttl_sec: 0,
@@ -250,12 +293,24 @@ mod tests {
             requires_evidence = true
             escalate_arg = "cluster"
             escalate_equals = "prod"
+
+            [[tools]]
+            name = "shell.exec"
+            risk = "high"
+            write = true
+            requires_evidence = true
+            constraints = { blocked_pattern = "rm -rf", deny_reason = "DANGEROUS_COMMAND_BLOCKED" }
             "#,
         )
         .expect("valid policy config")
     }
 
-    fn envelope(tool: &str, spawn_depth: u8, with_evidence: bool) -> ActionEnvelope {
+    fn envelope(
+        tool: &str,
+        args: serde_json::Value,
+        spawn_depth: u8,
+        with_evidence: bool,
+    ) -> ActionEnvelope {
         ActionEnvelope {
             action_id: "act-1".to_string(),
             run_id: "run-1".to_string(),
@@ -274,7 +329,7 @@ mod tests {
             },
             proposed_action: ProposedAction {
                 tool: tool.to_string(),
-                args: serde_json::json!({"cluster": "prod"}),
+                args,
             },
             evidence: if with_evidence {
                 vec![EvidencePointer {
@@ -297,7 +352,7 @@ mod tests {
     #[test]
     fn denies_on_spawn_depth() {
         let engine = PolicyEngine::from_config(config());
-        let env = envelope("repo.read", 3, false);
+        let env = envelope("repo.read", serde_json::json!({"path":"README.md"}), 3, false);
         let eval = engine.evaluate_submit(&env);
         assert_eq!(eval.reason_code, "SPAWN_DEPTH_EXCEEDED");
     }
@@ -305,7 +360,7 @@ mod tests {
     #[test]
     fn escalates_high_risk_devops_action() {
         let engine = PolicyEngine::from_config(config());
-        let env = envelope("k8s.apply", 1, true);
+        let env = envelope("k8s.apply", serde_json::json!({"cluster":"prod"}), 1, true);
         let eval = engine.evaluate_submit(&env);
         assert!(matches!(eval.decision, crate::proto::DecisionType::Escalate));
     }
@@ -314,9 +369,9 @@ mod tests {
     fn consumes_budget_and_blocks_overuse() {
         let engine = PolicyEngine::from_config(config());
 
-        let first = envelope("repo.read", 1, false);
-        let second = envelope("repo.read", 1, false);
-        let third = envelope("repo.read", 1, false);
+        let first = envelope("repo.read", serde_json::json!({"path":"README.md"}), 1, false);
+        let second = envelope("repo.read", serde_json::json!({"path":"README.md"}), 1, false);
+        let third = envelope("repo.read", serde_json::json!({"path":"README.md"}), 1, false);
 
         assert!(matches!(
             engine.evaluate_submit(&first).decision,
@@ -330,5 +385,35 @@ mod tests {
             engine.evaluate_submit(&third).decision,
             crate::proto::DecisionType::Deny
         ));
+    }
+
+    #[test]
+    fn denies_dangerous_shell_command() {
+        let engine = PolicyEngine::from_config(config());
+        let env = envelope(
+            "shell.exec",
+            serde_json::json!({"command":"  RM   -RF   /tmp/demo  "}),
+            1,
+            true,
+        );
+
+        let eval = engine.evaluate_submit(&env);
+        assert!(matches!(eval.decision, crate::proto::DecisionType::Deny));
+        assert_eq!(eval.reason_code, "DANGEROUS_COMMAND_BLOCKED");
+    }
+
+    #[test]
+    fn escalates_safe_shell_command() {
+        let engine = PolicyEngine::from_config(config());
+        let env = envelope(
+            "shell.exec",
+            serde_json::json!({"command":"ls   -la /tmp"}),
+            1,
+            true,
+        );
+
+        let eval = engine.evaluate_submit(&env);
+        assert!(matches!(eval.decision, crate::proto::DecisionType::Escalate));
+        assert_eq!(eval.reason_code, "HIGH_RISK_ESCALATION");
     }
 }

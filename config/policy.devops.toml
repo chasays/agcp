@@ -24,3 +24,10 @@ requires_evidence = true
 escalate_arg = "cluster"
 escalate_equals = "prod"
 constraints = { max_changes = "20", require_diff = "true" }
+
+[[tools]]
+name = "shell.exec"
+risk = "high"
+write = true
+requires_evidence = true
+constraints = { blocked_pattern = "rm -rf", deny_reason = "DANGEROUS_COMMAND_BLOCKED" }

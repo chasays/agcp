@@ -8,6 +8,26 @@ An end-to-end AGCP minimum viable implementation, including:
 - Governor (kill/degrade)
 - Human Approval
 
+## Project Introduction
+
+AGCP MVP is a practical safety and coordination layer for agent-driven actions. It addresses a core operational problem: how to let autonomous agents use tools while maintaining strict control boundaries, clear accountability, and emergency interruption paths.
+
+This implementation demonstrates a full control loop: signed action envelopes are evaluated by policy, short-lived capability tokens gate execution, high-risk operations can be escalated to human approval, governor controls can kill or degrade behavior, and every decision path is captured in a hash-chained audit log.
+
+## Key Design Goals
+
+- Verifiable attribution for every action and approval decision
+- Capability bounding through explicit tokenized permissions
+- Emergency control using kill and read-only degrade modes
+- Auditable execution trail using append-only hash-linked records
+
+## How This MVP Maps to AGCP Layers
+
+- **L1 Attestation/Audit:** signed envelopes and WAL hash-chain integrity
+- **L2 Capability:** signed capability tokens and gateway-side token validation
+- **L4 Coordination Control:** escalation and human approval workflow
+- **L5 Governance:** global/run/agent/tool-class kill and read-only controls
+
 ## Repository Layout
 
 - `src/proto.rs`: Core protocol types

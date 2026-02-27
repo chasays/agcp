@@ -40,6 +40,13 @@ fn test_policy() -> PolicyConfig {
         requires_evidence = true
         escalate_arg = "cluster"
         escalate_equals = "prod"
+
+        [[tools]]
+        name = "shell.exec"
+        risk = "high"
+        write = true
+        requires_evidence = true
+        constraints = { blocked_pattern = "rm -rf", deny_reason = "DANGEROUS_COMMAND_BLOCKED" }
         "#,
     )
     .expect("test policy parse")
@@ -280,4 +287,32 @@ async fn read_only_blocks_write_actions() {
 
     assert_eq!(status, StatusCode::FORBIDDEN);
     assert_eq!(body["decision"]["reason_code"], "GOVERNOR_READ_ONLY");
+}
+
+#[tokio::test]
+async fn dangerous_shell_command_is_denied() {
+    let tmp = TempDir::new().expect("tempdir");
+    let app = build_test_app(&tmp);
+    let agent_key = SigningKey::generate(&mut OsRng);
+
+    let action = make_action(
+        &agent_key,
+        "act-shell-deny-1",
+        "run-shell-deny",
+        "shell.exec",
+        serde_json::json!({"command":"rm -rf /tmp/demo"}),
+        true,
+    );
+
+    let (status, body) = send_json(
+        &app,
+        "POST",
+        "/v1/actions/submit",
+        serde_json::to_value(action).expect("action json"),
+    )
+    .await;
+
+    assert_eq!(status, StatusCode::FORBIDDEN);
+    assert_eq!(body["status"], "DENY");
+    assert_eq!(body["decision"]["reason_code"], "DANGEROUS_COMMAND_BLOCKED");
 }
