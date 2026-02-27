@@ -1,0 +1,26 @@
+max_tool_calls_per_run = 20
+max_write_actions_per_run = 5
+max_spawn_depth = 2
+approval_ttl_sec = 300
+token_ttl_sec = 300
+
+[[tools]]
+name = "repo.read"
+risk = "low"
+write = false
+requires_evidence = false
+
+[[tools]]
+name = "k8s.diff"
+risk = "low"
+write = false
+requires_evidence = false
+
+[[tools]]
+name = "k8s.apply"
+risk = "medium"
+write = true
+requires_evidence = true
+escalate_arg = "cluster"
+escalate_equals = "prod"
+constraints = { max_changes = "20", require_diff = "true" }
