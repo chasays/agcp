@@ -10,16 +10,16 @@ An end-to-end AGCP minimum viable implementation, including:
 
 ## Repository Layout
 
-- `/Users/rikxiao/source/AGCP/src/proto.rs`: Core protocol types
-- `/Users/rikxiao/source/AGCP/src/crypto.rs`: JSON+JCS, signing/verification, hashing
-- `/Users/rikxiao/source/AGCP/src/policy.rs`: Policy evaluation and budget controls
-- `/Users/rikxiao/source/AGCP/src/token.rs`: Capability token issue/verify
-- `/Users/rikxiao/source/AGCP/src/governor.rs`: Kill/degrade state machine
-- `/Users/rikxiao/source/AGCP/src/gateway.rs`: Tool gateway and mock execution
-- `/Users/rikxiao/source/AGCP/src/ledger.rs`: WAL and chain integrity verification
-- `/Users/rikxiao/source/AGCP/src/api.rs`: HTTP API
-- `/Users/rikxiao/source/AGCP/config/policy.devops.toml`: DevOps policy template
-- `/Users/rikxiao/source/AGCP/scripts/regression.sh`: 6-scenario regression script
+- `src/proto.rs`: Core protocol types
+- `src/crypto.rs`: JSON+JCS, signing/verification, hashing
+- `src/policy.rs`: Policy evaluation and budget controls
+- `src/token.rs`: Capability token issue/verify
+- `src/governor.rs`: Kill/degrade state machine
+- `src/gateway.rs`: Tool gateway and mock execution
+- `src/ledger.rs`: WAL and chain integrity verification
+- `src/api.rs`: HTTP API
+- `config/policy.devops.toml`: DevOps policy template
+- `scripts/regression.sh`: 6-scenario regression script
 
 ## Start
 
@@ -70,4 +70,4 @@ The script covers:
 - `runtime_attestation` is a placeholder only; no real TEE attestation is implemented.
 - Tool execution is mocked and does not touch production systems.
 - Single-process, single-node deployment; no distributed consistency.
-- Keys are managed as local files (`/Users/rikxiao/source/AGCP/data/policy_signing_key.b64`).
+- Keys are managed as local files (`data/policy_signing_key.b64`).
