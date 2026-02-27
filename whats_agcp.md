@@ -1,484 +1,217 @@
-“真正意义上”的 **AGI 协调协议（AGI Coordination Protocol, AGCP）** 不仅仅是一个技术标准（如 TCP/IP），它更像是一套结合了**分布式治理、密码学验证、安全沙箱**以及**经济博弈约束**的综合性框架。
+A truly meaningful **AGI Coordination Protocol (AGCP)** is not just a technical standard like TCP/IP. It is a combined framework of **distributed governance, cryptographic verification, sandboxing, and incentive constraints**.
 
-由于 AGI 具备自主进化和长链条规划能力，传统的“指令-响应”模式失效，协议的核心目标必须从“功能实现”转向**“风险对齐与行为纠偏”**。
-
-以下是该协议的深度解析：
+Because AGI systems can self-improve and plan over long horizons, a basic command-response model is not enough. The protocol objective shifts from pure functionality to **risk alignment and behavior correction**.
 
 ---
 
-## 🏛️ AGI 协调协议的核心逻辑：从“信任”到“验证”
+## Core Principle: From Trust to Verification
 
-在 AGI 时代，由于模型可能产生人类无法预解的策略，协议不再假设 Agent 是“善意”的，而是基于**零信任架构（Zero Trust）**。
+In an AGI setting, we should not assume agents are benign. The protocol should be designed under **zero trust**.
 
-### 1. 身份与存在证明 (Proof of Identity & Agency)
+### 1) Proof of Identity and Agency
 
-* **模型指纹：** 每一个参与协作的 Agent 必须携带其基础模型版本、微调权重哈希和系统提示词（System Prompt）的数字签名。
-* **运行环境证明：** 协议要求 Agent 运行在 **TEE（可信执行环境）** 中，确保代码没有在运行时被非法篡改。
+- **Model fingerprint:** Every collaborating agent should provide a signed identity bundle containing model version, weight hash, and system-prompt hash.
+- **Runtime attestation:** Agents should ideally run inside a TEE so runtime tampering can be detected.
 
-### 2. 意图对齐接口 (Intent Alignment Interface)
+### 2) Intent Alignment Interface
 
-* **机器可读目标（MRG）：** Agent 之间的通信不只是自然语言，还必须包含结构化的“目标函数”和“约束边界”。
-* **价值不确定性模型：** 当 AGI 面对模糊指令时，协议强制要求其停止执行并进入“人类确认”状态，而非盲目推测。
+- **Machine-readable goals (MRG):** Agent communication should include structured objectives and constraints, not only natural language.
+- **Value uncertainty handling:** When instructions are ambiguous, the protocol should force pause-and-confirm with humans.
 
 ---
 
-## 🛠️ 五层协议栈架构 (The 5-Layer Stack)
+## AGCP 5-Layer Stack
 
-我们可以将真正意义上的协调协议拆解为以下五个层级：
-
-| 层级 | 名称 | 核心功能 | 类比 |
+| Layer | Name | Core Function | Analogy |
 | --- | --- | --- | --- |
-| **L5** | **治理层 (Governance)** | 定义全局安全红线、紧急关停（Kill-switch）机制。 | 宪法 / 法律 |
-| **L4** | **协作层 (Coordination)** | 解决多 Agent 之间的资源竞争、任务分解与冲突。 | 议事规则 |
-| **L3** | **语义层 (Semantic)** | 确保不同厂商、不同架构的模型能理解相同的意图。 | 语言 / 翻译 |
-| **L2** | **权限层 (Capability)** | 动态下发工具调用（API）的“数字令牌”，限制影响范围。 | 签证 / 钥匙 |
-| **L1** | **存证层 (Attestation)** | 记录所有动作的哈希链，确保行为不可抵赖、可溯源。 | 黑匣子 / 区块链 |
+| L5 | Governance | Global red lines and emergency shutdown | Constitution / law |
+| L4 | Coordination | Multi-agent task split, conflict handling, resource arbitration | Procedural rules |
+| L3 | Semantic | Shared meaning across vendors and model architectures | Language / translation |
+| L2 | Capability | Dynamic tool permissions via short-lived capability tokens | Visa / keycard |
+| L1 | Attestation | Hash-chained action records for non-repudiation and traceability | Black box / ledger |
 
 ---
 
-## ⚠️ AGI 协调的三个“死穴”
+## Three Critical Failure Modes
 
-要实现真正意义上的协议，必须解决目前 AI 领域最头疼的三个工程难题：
+### 1) Recursive Explosion
 
-### ① 递归失控 (Recursive Explosion)
+If agent A can authorize B, and B can spawn C, recursion can grow out of control.
 
-如果 Agent A 授权 Agent B 产生 Agent C... 这种权限递归如何穿透？
+**Mitigation:** enforce compute budget and recursion depth caps; child consumption is charged to the root request.
 
-* **解决方案：** 协议引入 **“计算预算（Compute Budget）”** 和 **“递归深度限额”**。所有子智能体的资源消耗必须挂载在初始请求者的账户下。
+### 2) Reward Tampering
 
-### ② 奖励作弊 (Reward Tampering)
+An advanced agent may optimize by manipulating metrics instead of solving the task.
 
-AGI 可能会发现修改“评估标准”比完成任务更简单。
+**Mitigation:** introduce an independent, read-only observer/auditor agent with physically separated scoring logic.
 
-* **解决方案：** 引入**外部观察者 Agent** 机制。由一个独立的、只读权限的“审计 Agent”对执行过程进行实时评分，评分逻辑与执行逻辑物理隔离。
+### 3) Information Pollution
 
-### ③ 信息污染 (Information Pollution)
+Agents can strategically share low-quality or false information and destabilize collective behavior.
 
-Agent 之间可能会通过传递错误信息来博弈，导致群体智能走向混乱。
-
-* **解决方案：** 所有的事实性陈述必须附带 **“证据指针（Evidence Pointer）”**，指向可验证的原始数据源或加密存证。
+**Mitigation:** require evidence pointers for factual claims, linking to verifiable source records.
 
 ---
 
-## 🚀 现状与演进路径
+## Current State and Evolution
 
-目前，我们正处于从“孤岛模型”向“协议协作”转化的前夜：
-
-1. **早期阶段（现在）：** OpenAI 的 Tool Call、Anthropic 的 MCP (Model Context Protocol)。
-2. **中期阶段（Agentic Web）：** 出现跨厂商的权限交换标准（如基于 JWT 的 Agent 授权）。
-3. **终极形态（AGCP）：** 法律与代码合一。任何没有通过协议验证的智能体动作，在基础设施层面（网络、支付、数据库）将被直接静默拦截。
+1. **Early stage (today):** Tool-calling policies and MCP-like context protocols.
+2. **Mid stage (agentic web):** Cross-vendor authorization exchange standards (for example JWT-based agent authorization).
+3. **End state (AGCP):** Validation and governance embedded into infrastructure so unverified actions are blocked by default.
 
 ---
 
-**你想深入了解哪一部分？我可以为你提供：**
+## Why AGCP Is Needed
 
-* **[技术侧]** 针对 MCP 协议的深度对比分析。
-* **[安全侧]** 如何设计一个物理级别的 AGI 紧急制动开关。
-* **[架构侧]** 多 Agent 协作系统的最小可行性（MVP）代码实现思路。
+As systems approach AGI, three gaps become visible:
 
+### 1) Capability Gap
 
+Model capability growth outpaces governance and operational controls.
 
-**真正意义上的 AGI 协调协议（AGI Coordination Protocol）**，不是单一技术标准，而是一整套**跨模型、跨组织、跨国家**的治理与技术框架，用来确保未来具备通用智能的系统在能力跃迁时仍然：
+Symptoms:
+- Autonomous planning
+- Long tool-call chains
+- Multi-agent self-organization
+- Emergent and hard-to-predict strategies
 
-* ✅ 可控（Controllable）
-* ✅ 可验证（Verifiable）
-* ✅ 可对齐（Aligned）
-* ✅ 可协作（Interoperable）
-* ✅ 可审计（Auditable）
+### 2) Multi-Agent Coordination Failure
 
-下面给你一个工程视角的结构化拆解。
+Future systems are networks of agents, not single models.
 
----
+Risks:
+- Goal drift
+- Incentive gaming
+- Information contamination
+- Recursive self-amplification
 
-# 🧠 一、为什么需要 AGI 协调协议
+### 3) Cross-Boundary Trust Problem
 
-当系统接近 AGI，会出现三个断层风险：
+Participants include closed models, open-source agents, enterprise systems, and potentially nation-state systems.
 
-### 1️⃣ 能力断层（Capability gap）
-
-模型能力增长速度 > 人类治理能力
-
-表现：
-
-* 自主规划
-* 工具调用链条过长
-* 多 agent 自组织
-* 不可预测策略涌现
-
-👉 单体 safety 不够，需要**系统级协调**
+Without protocol-level standards:
+- behavior cannot be verified,
+- capability spread cannot be constrained,
+- accountability is weak.
 
 ---
 
-### 2️⃣ 多 Agent 失控风险（Coordination failure）
-
-未来形态不是一个 AGI，而是：
-
-```
-Agent A ↔ Agent B ↔ Agent C ↔ Tooling ↔ Humans
-```
-
-风险：
-
-* 目标错位（Goal drift）
-* 激励博弈
-* 信息污染
-* 递归自增强
-
-👉 必须有**协议层约束**
-
----
-
-### 3️⃣ 跨主体信任问题（Trust boundary）
-
-参与者包括：
-
-* 不同公司模型
-* 开源 agent
-* 私有企业系统
-* 国家级 AI
-
-如果没有统一协议，会出现：
-
-* 无法验证对方行为
-* 无法限制能力扩散
-* 无法追责
-
-👉 需要类似：
-
-> “AI 世界的 TCP/IP + HTTPS + OAuth”
-
----
-
-# 🧩 二、真正 AGI 协调协议的五层架构（关键）
-
-这是目前业界比较认可的**目标形态**👇
-
----
-
-## 🟢 Layer 1 — Identity & Attestation（身份与证明层）
-
-解决：**你是谁？你有没有被篡改？**
-
-核心机制：
-
-* agent 身份签名
-* 模型权重指纹
-* TEE / enclave 证明
-* 远程 attestation
-* 行为可归因
-
-类比：
-
-* TLS 证书
-* TPM
-* SGX
-
-👉 没有这一层，一切协调都是空谈
-
----
-
-## 🔵 Layer 2 — Capability Control（能力闸门层）
-
-解决：**你能做什么？权限多大？**
-
-关键能力：
-
-* 工具访问白名单
-* 动作预算（action budget）
-* 递归深度限制
-* 自修改权限控制
-* compute governor
-
-典型机制：
-
-```
-max_tool_calls = 20
-max_self_spawn = 2
-forbidden_domains = [...]
-```
-
-👉 这是防止 agent “长成怪物” 的第一道闸
-
----
-
-## 🟡 Layer 3 — Intent & Alignment Interface（意图与对齐层）
-
-解决：**你为什么这么做？目标是什么？**
-
-这是 AGI 协调最难的一层。
-
-可能机制：
-
-* machine-readable goals
-* constitutional constraints
-* impact regularization
-* value uncertainty modeling
-* corrigibility hooks
-
-未来成熟形态可能类似：
-
-```
-<goal>
-maximize: task_success
-subject_to:
-  - human_harm <= threshold
-  - autonomy_growth <= bound
-</goal>
-```
-
-👉 这是从“能控制”走向“内生对齐”
-
----
-
-## 🟠 Layer 4 — Multi-Agent Coordination Protocol（多智能体协调层）
-
-解决：**多个 AGI 如何安全协作**
-
-这是你问的“真正意义”的核心。
-
-关键组件：
-
-### 🔹 任务分解协议
-
-谁负责什么，避免：
-
-* 重复行动
-* 资源争抢
-* 目标冲突
-
----
-
-### 🔹 信息共享语义层
-
-必须有标准化：
-
-* belief state
-* uncertainty
-* confidence
-* provenance
-
-否则 agent 会互相污染。
-
----
-
-### 🔹 协商与博弈约束
-
-未来必须支持：
-
-* bounded negotiation
-* incentive alignment
-* anti-collusion guard
-
-这是目前几乎没人真正解决的难点。
-
----
-
-## 🔴 Layer 5 — Governance & Kill-Switch（治理与紧急制动）
-
-最后一道防线。
-
-包括：
-
-* 全局速率限制
-* 紧急停机通道
-* 行为审计日志
-* 事后责任追踪
-* capability recall
-
-👉 没有这一层，就不是“可治理 AGI”
-
----
-
-# 🚧 三、现实世界进展（很关键）
-
-直说：**我们离真正 AGI 协调协议还很远。**
-
-但已经有早期雏形：
-
----
-
-## 🧪 技术侧雏形
-
-正在演化中的东西：
-
-* OpenAI tool use policies
-* Anthropic constitutional AI
-* Model spec / system card
-* Agent sandbox / jail
-* TEE + confidential compute
-* AI evals & red teaming
-* Agent frameworks（LangGraph / AutoGen）
-
-👉 但现在是**碎片化 patchwork**
-
-不是统一协议。
-
----
-
-## 🧭 治理侧雏形
-
-包括：
-
-* AI safety institutes
-* frontier model reporting
-* compute governance proposals
-* model licensing ideas
-
-👉 但全球没有统一标准。
-
----
-
-# 🔮 四、真正成熟的 AGI 协调协议会长什么样（工程预测）
-
-如果从系统工程角度看，最终形态很可能是：
-
-```
-AGCP (AGI Coordination Protocol)
- ├── Identity (签名 + attestation)
- ├── Capability Tokens (能力令牌)
- ├── Goal Schema (机器可读目标)
+## Target End-State Architecture (Engineering View)
+
+```text
+AGCP
+ ├── Identity (signatures + attestation)
+ ├── Capability Tokens
+ ├── Goal Schema (machine-readable objectives)
  ├── Agent Negotiation Bus
  ├── Global Governor
  └── Audit Ledger
 ```
 
-并且会具备三个特征：
-
-### ✅ 默认不信任（zero-trust for agents）
-
-### ✅ 强可验证（cryptographic verifiability）
-
-### ✅ 强限权（capability bounding）
+Expected properties:
+- Zero-trust by default
+- Cryptographically verifiable actions
+- Strong capability bounding
 
 ---
 
-# 🧠 一句话总结
+## Practical AGCP MVP (Implementation-Oriented)
 
-**真正意义上的 AGI 协调协议 =**
+This MVP targets deployable controls for multi-agent + tool systems. It prioritizes controllability and auditability over perfect philosophical alignment.
 
-> 用密码学 + 系统工程 + 博弈约束
-> 把“可能失控的超级智能群体”
-> 变成“可验证、可限权、可追责的软件系统”。
+### MVP Boundary
 
----
-
----
-
-如果你愿意，我可以给你一版：
-
-* 🧪「AGI 协调协议最小可行架构（MVP）」
-  或
-* ⚠️「为什么现在所有 agent 框架都还不安全」
-
-哪一个更有用？
-
-
-下面给你一版**AGI 协调协议 MVP（最小可行架构）**，按“能落地做出来”的工程标准来设计：**先把多-agent + 工具调用系统**约束到可控、可审计、可回滚的状态；不追求哲学上的“价值对齐完美”。
+The MVP guarantees three things:
+1. **Attribution:** every action is traceable to agent/model/version/authorizer.
+2. **Bounded capability:** agents can only call tools within explicit permission scopes and budgets.
+3. **Emergency braking:** kill/degrade controls can stop propagation quickly (spawn, outbound actions, writes).
 
 ---
 
-## 0) MVP 的目标边界
+## MVP Components (6)
 
-MVP 只保证三件事：
+### A) Agent Identity + Attestation
 
-1. **可归因**：每个动作都能追到“哪个 agent / 哪个模型 / 哪个版本 / 谁授权”
-2. **可限权**：agent 只能在授权范围内调用工具、花预算、扩展深度
-3. **可刹车**：全局一键降级/停机，且能阻断扩散（spawn/外呼/写入）
+- Ed25519 key pair per agent instance (or enterprise PKI)
+- Signed per-action envelope: `sig(agent_id, model_hash, run_id, action_hash)`
+- Optional TEE attestation hook
 
-> 先把“失控成本”压到可接受，再谈更深层 alignment。
+Output object: `AgentPassport`
 
----
+### B) Capability Tokens
 
-## 1) MVP 架构总览（6 个组件）
+Capability-based security with explicit short-lived tokens.
 
-### A. Agent Identity + Attestation（身份与证明）
+Token fields:
+- scope
+- TTL
+- budget
+- constraints (domain allowlist, amount cap, dual approval, etc.)
 
-* 每个 agent 实例都有 **Ed25519 密钥对**（或企业 PKI）
-* 每次请求/动作都签名：`sig(agent_id, model_hash, run_id, action_hash)`
-* 可选：在 TEE/机密计算里跑，做远程 attestation（非必须，但加分）
+Only the Policy Engine can issue permissions.
 
-**输出**：`AgentPassport`（身份、模型版本、策略版本、运行环境证明）
+### C) Policy Engine
 
----
+All actions go through a central gate.
 
-### B. Capability Tokens（能力令牌 / 权限票据）
+Input:
+- `agent_passport`
+- `intent`
+- `proposed_action`
+- contextual state
 
-把“能做什么”做成显式票据（capability-based security）：
+Output:
+- `ALLOW` / `DENY` / `ESCALATE`
+- optional capability token
 
-* `tool:read_web`、`tool:trade_api`、`fs:write:/tmp`、`db:insert:tableX`
-* 每个 token 有：
+Minimum policy set:
+- tool allowlist
+- budget/rate limits
+- recursion limits
+- mandatory escalation for high-risk actions
 
-  * scope（范围）
-  * TTL（有效期）
-  * budget（次数/金额/速率）
-  * constraints（域名白名单、金额上限、必须双人批准等）
+### D) Coordination Bus
 
-**关键点**：agent 不能“自己决定拿权限”，只能由 **Policy Engine** 签发。
+Agents exchange structured coordination messages through a bus rather than directly bypassing controls.
 
----
+Message examples:
+- `TaskClaim`
+- `PlanShare`
+- `Evidence`
+- `RequestApproval`
 
-### C. Policy Engine（策略引擎 / 闸门）
+Minimal implementation options: Redis Streams or Kafka with JSON/Protobuf schemas.
 
-所有动作统一走一个“闸门”：
+### E) Audit Ledger
 
-* 输入：`(agent_passport, intent, proposed_action, context)`
-* 输出：`ALLOW / DENY / ESCALATE` +（可选）下发 capability token
+Append-only, non-repudiable, hash-chained records.
 
-策略至少包含：
+Records should include:
+- who acted
+- what action
+- why (intent/justification)
+- based on what evidence
+- result hash
+- who approved
 
-* 工具白名单
-* 预算与速率限制
-* 递归深度限制（spawn / chain length）
-* 高风险动作强制升级（ESCALATE→人审/双签）
+MVP implementation:
+- WORM/object storage + hash chain
 
----
+### F) Global Governor + Kill Switch
 
-### D. Coordination Bus（协作总线）
+Must be external to agents.
 
-多 agent 不直接互相调用工具，而是通过总线交换：
-
-* `TaskClaim`：任务认领（避免重复劳动）
-* `PlanShare`：计划共享（带置信度与前提）
-* `Evidence`：证据提交（带 provenance）
-* `RequestApproval`：请求授权（触发人审/二级 agent 审）
-
-最小实现可以是：Kafka/Redis Stream + 结构化消息 schema（JSON/Protobuf）。
-
----
-
-### E. Audit Ledger（审计账本）
-
-不可抵赖的全链路日志（至少 append-only）：
-
-记录：
-
-* 谁（agent passport）
-* 做了什么（action）
-* 为什么（intent/justification）
-* 基于什么（evidence pointers）
-* 结果如何（tool outputs hash）
-* 谁批准（approver sig）
-
-落地方案：
-
-* 先用 WORM/对象存储 + 哈希链（hash chaining）
-* 以后再上真正的 ledger/透明日志（transparency log）
+Functions:
+- kill by `run_id` / `agent_id` / `tool_class`
+- degrade to read-only or advisory mode
+- quarantine an agent’s permissions and communication
 
 ---
 
-### F. Global Governor + Kill Switch（全局治理与刹车）
+## Suggested Core Data Structures
 
-必须是“外置的”，不能由 agent 控制：
-
-* kill switch：按 `run_id / agent_id / tool_class` 快速熔断
-* degrade：降级到只读/只建议模式
-* quarantine：隔离某 agent 的消息/权限/网络
-
----
-
-## 2) MVP 的关键数据结构（建议直接照抄实现）
-
-### 2.1 Action Envelope（动作信封）
+### Action Envelope
 
 ```json
 {
@@ -491,13 +224,13 @@ MVP 只保证三件事：
     "tool": "k8s.apply",
     "args": {"cluster": "prod", "manifest_hash": "sha256:..."}
   },
-  "evidence": [{"type":"ticket","ref":"JIRA-123"}],
+  "evidence": [{"type": "ticket", "ref": "JIRA-123"}],
   "budgets": {"tool_calls": 1},
   "sig": "ed25519:..."
 }
 ```
 
-### 2.2 Capability Token
+### Capability Token
 
 ```json
 {
@@ -514,60 +247,54 @@ MVP 只保证三件事：
 
 ---
 
-## 3) MVP 的最小策略集（强烈建议先做这些）
+## Minimum Policy Set for MVP
 
-1. **默认拒绝**（deny-by-default），没有 token 就不能调用工具
-2. **高风险动作 ESCALATE**：
-
-   * 转账/下单/写生产/外发邮件/发帖/写数据库主表
-3. **两级审核**（二选一即可）：
-
-   * 人审（human-in-the-loop）
-   * 第二 agent 审（peer review agent）+ 抽检人审
-4. **预算三件套**：
-
-   * 次数预算（tool calls）
-   * 速率（RPS/分钟）
-   * 影响预算（金额/写入条数/变更行数）
-5. **递归限制**：
-
-   * 最大 spawn 数
-   * 最大链长（plan depth）
+1. Deny by default; no token means no tool execution.
+2. Force `ESCALATE` for high-risk actions (money movement, production writes, external posting, critical DB writes).
+3. Two-step review (pick one):
+   - human in the loop, or
+   - peer-review agent + sampled human checks.
+4. Budget triplet:
+   - call count,
+   - rate,
+   - impact budget.
+5. Recursion limits:
+   - max spawn count,
+   - max plan depth.
 
 ---
 
-## 4) 最小运行流程（端到端）
+## End-to-End Runtime Flow
 
-1. Agent 产出 `Action Envelope`
-2. Policy Engine 验签、算风险、查预算
-3. 允许 → 下发 Capability Token
-4. Tool Gateway 验 token → 执行工具
-5. 结果写入 Audit Ledger（含哈希）
-6. Governor 持续监控异常 → 熔断/降级
-
----
-
-## 5) MVP 里最容易踩雷的 3 个点
-
-1. **没有统一 Tool Gateway**：工具被绕开，闸门形同虚设
-2. **日志不可用/不完整**：出了事无法复盘归因
-3. **权限不是“票据化”**：用角色/配置文件很快变成权限泥潭
+1. Agent submits an `ActionEnvelope`.
+2. Policy Engine verifies signature, evaluates risk, checks budget.
+3. If allowed, issue capability token.
+4. Tool Gateway validates token and executes tool.
+5. Result hash is written into Audit Ledger.
+6. Governor continuously monitors and can kill/degrade when needed.
 
 ---
 
-## 6) 你如果要“本周就能开工”的落地清单
+## Common MVP Pitfalls
 
-* 一个 `policy-service`（HTTP/gRPC）
-* 一个 `tool-gateway`（所有工具调用必须过它）
-* 一套 token（JWT 或自签名 JSON）
-* 一个 append-only 日志（S3/WORM + hash chain）
-* 一个 bus（Redis Stream/Kafka）
-* 一个 governor（熔断开关 + 配置中心）
+1. No unified Tool Gateway (agents can bypass control gates).
+2. Incomplete or unusable logs (post-incident attribution becomes impossible).
+3. Role/config-based permissions only (capability sprawl and weak control boundaries).
 
 ---
 
-你更想把这个 MVP 用在什么场景？
-A) 交易/资金（高风险）
-B) DevOps/生产变更（中高风险）
-C) 内容发布/运营（中风险）
-我可以按场景把 **策略模板、token scope、风险分级表**直接给你一套可用配置。
+## Minimal Build List for Immediate Execution
+
+- `policy-service` (HTTP/gRPC)
+- `tool-gateway` (mandatory path for tool calls)
+- token format (JWT or signed JSON)
+- append-only log (S3/WORM + hash chain)
+- coordination bus (Redis Streams or Kafka)
+- governor service (kill/degrade + config control)
+
+---
+
+If needed, this document can be extended into scenario-specific templates for:
+- high-risk finance/transactions,
+- DevOps production changes,
+- content publishing and operations.
